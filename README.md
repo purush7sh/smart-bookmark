@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smart Bookmark App
 
-## Getting Started
+Live Demo: https://smart-bookmark-ruddy-nine.vercel.app  
+GitHub: https://github.com/purush7sh/smart-bookmark
 
-First, run the development server:
+## Features
+- Google OAuth authentication using Supabase
+- Add and delete bookmarks (title + URL)
+- Bookmarks are private per user (Row Level Security)
+- Realtime updates across multiple tabs
+- Deployed on Vercel
+
+## Tech Stack
+- Next.js (App Router)
+- Supabase (Auth, Database, Realtime)
+- Tailwind CSS
+- Vercel
+
+## How It Works
+- Users sign in with Google using Supabase Auth
+- Each bookmark is stored with the user_id
+- Row Level Security (RLS) ensures users only see their own bookmarks
+- Supabase Realtime listens to changes on the bookmarks table and updates the UI instantly
+- The app is deployed on Vercel
+
+## Problems I Faced & How I Solved Them
+
+### 1. Vercel build failing with "Root Directory" error
+- Problem: My project was inside a nested folder and Vercel couldn’t find `package.json`.
+- Solution: I moved all Next.js files to the repository root and re-deployed.
+
+### 2. "supabaseUrl is required" error during build
+- Problem: Environment variables were not set in Vercel.
+- Solution: I added `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel Environment Variables.
+
+### 3. 404 Not Found after successful build
+- Problem: Incorrect project structure / wrong root directory configuration.
+- Solution: Recreated the project in Vercel with correct root and verified App Router setup.
+
+### 4. Realtime not updating initially
+- Problem: Realtime channel was not subscribed correctly.
+- Solution: Used Supabase `channel(...).on('postgres_changes', ...)` and refetched bookmarks on change.
+
+## How to Run Locally
 
 ```bash
+git clone https://github.com/purush7sh/smart-bookmark.git
+cd smart-bookmark
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
