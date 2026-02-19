@@ -184,7 +184,7 @@ const deleteBookmark = async (id: string) => {
               onClick={() => deleteBookmark(b.id)}
               className="text-red-600"
             >
-              Delete
+              DELETE
             </button>
           </li>
         ))}
