@@ -129,66 +129,103 @@ const deleteBookmark = async (id: string) => {
 };
 
 
-  // If not logged in
-  if (!session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <button
-          onClick={loginWithGoogle}
-          className="px-6 py-3 bg-black text-white rounded-lg"
-        >
+// If not logged in
+if (!session) {
+  return (
+    <div className="auth-bg">
+      <div className="auth-card">
+        <div className="auth-logo">🔖</div>
+        <h1 className="auth-title">Smart Bookmark</h1>
+        <p className="auth-subtitle">
+          Save and manage your favorite links in one place
+        </p>
+
+        <button onClick={loginWithGoogle} className="btn-primary auth-btn">
           Sign in with Google
         </button>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  // Logged in UI
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">🔖 Smart Bookmark App</h1>
-        <button onClick={logout} className="text-red-600">
+
+// Logged in UI
+
+return (
+  <div className="app-bg">
+    {/* Header */}
+    <header className="app-header">
+      <div className="container header-inner">
+        <div className="logo">
+          <span>🔖</span>
+          <h1>Smart Bookmark</h1>
+        </div>
+        <button className="btn-outline" onClick={logout}>
           Logout
         </button>
       </div>
+    </header>
 
-      <form onSubmit={addBookmark} className="flex gap-2 mb-6">
-        <input
-          className="border p-2 flex-1 rounded"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <input
-          className="border p-2 flex-1 rounded"
-          placeholder="URL"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-        />
-        <button className="bg-blue-600 text-white px-4 rounded">
-          Add
-        </button>
-      </form>
+    {/* Main */}
+    <main className="container main-content">
+      {/* Add Card */}
+      <div className="card add-card">
+        <h2>Add a new bookmark</h2>
 
-      <ul className="space-y-3">
-        {bookmarks.map((b) => (
-          <li key={b.id} className="border p-3 rounded flex justify-between items-center">
-            <div>
-              <a href={b.url} target="_blank" className="font-semibold text-blue-600">
-                {b.title}
-              </a>
-              <div className="text-sm text-gray-500">{b.url}</div>
+        <form onSubmit={addBookmark} className="add-form">
+          <input
+            className="input"
+            placeholder="Title (e.g. React Docs)"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+
+          <input
+            className="input"
+            placeholder="URL (https://...)"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+
+          <button type="submit" className="btn-primary">
+            Add
+          </button>
+        </form>
+      </div>
+
+      {/* List */}
+      {bookmarks.length === 0 ? (
+        <div className="empty-state">
+          <div className="emoji">📭</div>
+          <p className="empty-title">No bookmarks yet</p>
+          <p className="empty-sub">Add your first link above 👆</p>
+        </div>
+      ) : (
+        <div className="bookmark-grid">
+          {bookmarks.map((b) => (
+            <div key={b.id} className="card bookmark-card">
+              <div className="bookmark-info">
+                <a href={b.url} target="_blank" rel="noreferrer">
+                  {b.title}
+                </a>
+                <div className="bookmark-url">{b.url}</div>
+              </div>
+
+              <button
+                onClick={() => deleteBookmark(b.id)}
+                className="btn-danger"
+              >
+                Delete
+              </button>
             </div>
-            <button
-              onClick={() => deleteBookmark(b.id)}
-              className="text-red-600"
-            >
-              DELETE
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+          ))}
+        </div>
+      )}
+    </main>
+  </div>
+);
+
+
+
+
 }
