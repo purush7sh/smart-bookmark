@@ -41,27 +41,44 @@ export default function Home() {
     if (data) setBookmarks(data);
   };
 
-  // Realtime subscription
-  useEffect(() => {
-    if (!session) return;
+useEffect(() => {
+  if (!session) return;
 
-    fetchBookmarks();
+  fetchBookmarks();
 
-    const channel = supabase
-      .channel('realtime-bookmarks')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'bookmarks' },
-        () => {
-          fetchBookmarks();
+  const channel = supabase
+    .channel('realtime-bookmarks')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'bookmarks' },
+      (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setBookmarks((prev) => [payload.new as Bookmark, ...prev]);
         }
-      )
-      .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [session]);
+        if (payload.eventType === 'DELETE') {
+          setBookmarks((prev) =>
+            prev.filter((b) => b.id !== (payload.old as any).id)
+          );
+        }
+
+        if (payload.eventType === 'UPDATE') {
+          setBookmarks((prev) =>
+            prev.map((b) =>
+              b.id === (payload.new as any).id ? (payload.new as Bookmark) : b
+            )
+          );
+        }
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [session]);
+
+
 
   // Login
   const loginWithGoogle = async () => {
@@ -76,24 +93,41 @@ export default function Home() {
   };
 
   // Add bookmark
-  const addBookmark = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !url) return;
+ const addBookmark = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!title || !url) return;
 
-    await supabase.from('bookmarks').insert({
+  const { data, error } = await supabase
+    .from('bookmarks')
+    .insert({
       title,
       url,
       user_id: session.user.id
-    });
+    })
+    .select()
+    .single();
 
-    setTitle('');
-    setUrl('');
-  };
+  if (!error && data) {
+    setBookmarks((prev) => [data, ...prev]); // instant add
+  }
+
+  setTitle('');
+  setUrl('');
+};
+
 
   // Delete bookmark
-  const deleteBookmark = async (id: string) => {
-    await supabase.from('bookmarks').delete().eq('id', id);
-  };
+const deleteBookmark = async (id: string) => {
+  setBookmarks((prev) => prev.filter((b) => b.id !== id)); // instant UI
+
+  const { error } = await supabase.from('bookmarks').delete().eq('id', id);
+
+  if (error) {
+    console.error(error);
+    fetchBookmarks(); // rollback if failed
+  }
+};
+
 
   // If not logged in
   if (!session) {
