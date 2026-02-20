@@ -1,6 +1,6 @@
 # Smart Bookmark App
 
-Live Demo: https://smart-bookmark-ruddy-nine.vercel.app  
+Live Demo: https://smart-bookmark-1n9p.vercel.app/ 
 GitHub: https://github.com/purush7sh/smart-bookmark
 
 ## Features
